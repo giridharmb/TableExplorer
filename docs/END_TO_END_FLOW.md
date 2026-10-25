@@ -103,7 +103,7 @@ sequenceDiagram
     S->>Q: prepare → compile → count + page
     Q-->>S: SearchPage or error string
     S-->>W: JSON
-    W-->>U: <Transition>: old table dimmed + progress bar, then new rows;<br/>errors → red "Query failed" box with the database message
+    W-->>U: <Transition>: old table dimmed + progress bar, then new rows<br/>errors → red "Query failed" box with the database message
 ```
 
 ### How a filter becomes SQL
@@ -112,7 +112,7 @@ sequenceDiagram
 flowchart TD
     F["Filter tree (JSON)<br/>Group AND<br/>├ Rule country equals [USA, india]<br/>└ Group OR<br/>&nbsp;&nbsp;├ Rule tags contains [vip]<br/>&nbsp;&nbsp;└ Rule notes pattern [Order #10?? *DHL]"]
     C["build_where + Dialect"]
-    P["PostgreSQL<br/>((LOWER(&quot;country&quot;::text) = LOWER($1::text) OR LOWER(&quot;country&quot;::text) = LOWER($2::text))<br/>AND ((&quot;tags&quot;::text ILIKE $3::text) OR (&quot;notes&quot;::text ILIKE $4::text)))"]
+    P["PostgreSQL<br/>((LOWER(#quot;country#quot;::text) = LOWER($1::text) OR LOWER(#quot;country#quot;::text) = LOWER($2::text))<br/>AND ((#quot;tags#quot;::text ILIKE $3::text) OR (#quot;notes#quot;::text ILIKE $4::text)))"]
     B["BigQuery<br/>((LOWER(`country`) = LOWER(@p1) OR LOWER(`country`) = LOWER(@p2))<br/>AND ((LOWER(TO_JSON_STRING(`tags`)) LIKE LOWER(@p3)) OR (LOWER(`notes`) LIKE LOWER(@p4))))"]
     V["params: USA · india · %vip% · Order #10__ %DHL"]
     F --> C --> P
