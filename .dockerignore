@@ -1,0 +1,9 @@
+target/
+pgdata/
+.git/
+.idea/
+*.iml
+.claude/
+secrets/
+*.md
+!README.md

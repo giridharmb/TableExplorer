@@ -1,0 +1,43 @@
+# Local full stack: PostgreSQL (seeded with the mock tables) + Table Explorer.
+#   docker compose up --build      →  http://localhost:3000
+# The app's saved searches live in the same database (table saved_queries, created on startup).
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: webui
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Runs once, on first start with an empty volume.
+      - ./db/seed.sql:/docker-entrypoint-initdb.d/01-seed.sql:ro
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d webui"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  app:
+    build: .
+    image: table-explorer:latest
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "host=db port=5432 user=postgres password=postgres dbname=webui"
+      STORAGE_DATABASE_URL: "host=db port=5432 user=postgres password=postgres dbname=webui"
+      # BigQuery (optional): mount a service-account key and point ADC at it.
+      # GOOGLE_APPLICATION_CREDENTIALS: /secrets/gcp-key.json
+      # GCP_PROJECT: my-gcp-project
+    # volumes:
+    #   - ./secrets/gcp-key.json:/secrets/gcp-key.json:ro
+    #   - ./config/app.toml:/app/config/app.toml:ro   # edit sources without rebuilding
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+volumes:
+  pgdata:

@@ -1,0 +1,44 @@
+# Table Explorer configuration. Path can be overridden with the APP_CONFIG env var.
+# Values may reference environment variables: "${NAME}" or "${NAME:-default}".
+# Restart the server after editing this file.
+
+# Saved / shared searches (the /s/<uuid> links) are stored here. PostgreSQL 13+.
+[storage]
+postgres_url = "${STORAGE_DATABASE_URL:-host=localhost port=5433 user=postgres dbname=webui}"
+
+# ---------------------------------------------------------------------------
+# Data sources. Each [[source]] appears as a group in the UI's table picker.
+#   id     stable identifier used in URLs and saved searches (a-z 0-9 _ -)
+#   label  name shown in the UI
+#   kind   "postgres" | "bigquery"   (picks the adapter in src/server/source.rs)
+#   tables tables/views to expose; omit or [] to expose every table in the schema/dataset
+#   max_export_rows   cap for .xlsx/.json exports (default 100000)
+#   enabled           set to false to hide a source without deleting it
+# ---------------------------------------------------------------------------
+
+[[source]]
+id = "local_pg"
+label = "Local PostgreSQL"
+kind = "postgres"
+url = "${DATABASE_URL:-host=localhost port=5433 user=postgres dbname=webui}"
+schema = "public"
+# Listed explicitly so the app's own saved_queries table isn't exposed.
+tables = ["customers", "sensor_readings"]
+statement_timeout_ms = 5000
+pool_size = 8
+
+# Google BigQuery. Auth uses Application Default Credentials:
+#   GOOGLE_APPLICATION_CREDENTIALS=/path/key.json, or `gcloud auth application-default login`,
+#   or the metadata server on GCP. The account needs BigQuery Data Viewer + Job User.
+# For the local emulator set endpoint = "http://localhost:9050" and auth = "none".
+[[source]]
+id = "bq_demo"
+label = "BigQuery demo"
+kind = "bigquery"
+enabled = true  # shows as "unavailable" in the UI until GCP credentials are set up
+project = "${GCP_PROJECT:-my-gcp-project}"
+dataset = "demo"
+location = "US"
+tables = []
+timeout_ms = 30000
+max_export_rows = 50000

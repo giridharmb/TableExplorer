@@ -1,0 +1,16 @@
+# build output
+target/
+
+# project-local PostgreSQL data dir (see docs/SETUP.md)
+pgdata/
+
+# IDE / local tooling
+.idea/
+*.iml
+.claude/
+.DS_Store
+
+# credentials (e.g. GCP service-account keys)
+secrets/
+*.pem
+*-key.json
